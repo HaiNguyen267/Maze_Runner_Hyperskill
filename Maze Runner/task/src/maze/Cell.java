@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Cell {
+public class Cell implements Serializable {
 
     private static final String WALL_SYMBOL = "\u2588\u2588";
     private static final String EMPTY_BLOCK_SYMBOL = "  ";

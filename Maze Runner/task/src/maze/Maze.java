@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Maze{
+public class Maze implements Serializable{
 
     private final int ROWS;
     private final int COLS;
