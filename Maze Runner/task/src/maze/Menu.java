@@ -5,10 +5,10 @@ import java.util.Scanner;
 
 public class Menu {
     private enum Option {
-        EXIT, GENERATE, LOAD, SAVE, DISPLAY
+        EXIT, GENERATE, LOAD, SAVE, DISPLAY, FIND_ESCAPING_PATH
     }
     private final Option[] OPTIONARR1 = {Option.EXIT, Option.GENERATE, Option.LOAD}; // when the maze is unavailable, there are 3 options to choose
-    private final Option[] OPTIONARR2 = {Option.EXIT, Option.GENERATE, Option.LOAD, Option.SAVE, Option.DISPLAY}; // when the maze is available, there are 5 options to choose
+    private final Option[] OPTIONARR2 = {Option.EXIT, Option.GENERATE, Option.LOAD, Option.SAVE, Option.DISPLAY, Option.FIND_ESCAPING_PATH}; // when the maze is available, there are 5 options to choose
     private boolean exit;
     private boolean mazeAvailable;
     private Maze maze;
@@ -37,6 +37,7 @@ public class Menu {
                     "2. Load a maze\n" +
                     "3. Save the maze\n" +
                     "4. Display the maze\n" +
+                    "5. Find the escape\n" +
                     "0. Exit");
         }
     }
@@ -56,7 +57,7 @@ public class Menu {
                         correctOption = true;
                     }
                 } else {
-                    if (userOption >= 0 && userOption <= 4) {
+                    if (userOption >= 0 && userOption <= 5) {
                         correctOption = true;
                     }
                 }
@@ -97,6 +98,9 @@ public class Menu {
             case DISPLAY:
                 displayMaze();
                 break;
+            case FIND_ESCAPING_PATH:
+                findEscapingPath();
+                break;
         }
     }
 
@@ -106,7 +110,7 @@ public class Menu {
         int size = Integer.parseInt(sc.nextLine());
         maze = new Maze(size, size);
         maze.generate();
-        maze.display();
+        maze.displayWithoutEscapingPath();
         mazeAvailable = true;
     }
 
@@ -136,13 +140,17 @@ public class Menu {
             serialize(maze, fileName);
         } catch (IOException e) {
             System.out.println("Error happened when serializing the maze");
-            e.printStackTrace();
         }
 
     }
 
     private void displayMaze() {
-        maze.display();
+        maze.displayWithoutEscapingPath();
+    }
+
+    private void findEscapingPath() {
+        maze.explore();
+        maze.displayWithEscapingPath();
     }
 
     private void serialize(Maze maze, String fileName) throws IOException {

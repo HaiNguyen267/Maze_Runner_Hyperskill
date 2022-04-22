@@ -2,14 +2,17 @@ package maze;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Maze implements Serializable{
 
     private final int ROWS;
     private final int COLS;
     private final Cell[][] GRID;
+
+    private Cell entranceCell;
+    private Cell exitCell;
     private boolean foundExit;
+    private boolean foundEscapingPath;
 
     public Maze(int rows, int cols) {
         this.ROWS = rows;
@@ -36,6 +39,7 @@ public class Maze implements Serializable{
                 if (current.isRightBorder()) {
                     if (!foundExit) {
                         current.setAsEmptyBlock();
+                        exitCell = current;
                         foundExit = true;
                         setRightWall();
                     }
@@ -44,7 +48,7 @@ public class Maze implements Serializable{
                     List<Cell> neighbors = current.getNeighbors();
                     // remove all null and visited neighbors
                     neighbors.removeIf(Objects::isNull);
-                    neighbors.removeIf(Cell::isVisited);
+                    neighbors.removeIf(Cell::isChecked);
 
                     // shuffle the list of unvisited neighbors
                     neighbors = shuffleList(neighbors);
@@ -60,12 +64,67 @@ public class Maze implements Serializable{
         }
     }
 
-    public void display() {
+    public void displayWithoutEscapingPath() {
+        for (Cell[] row : GRID) {
+            for (Cell cell : row) {
+                if (!cell.isWallBlock()) {
+                    System.out.print(Cell.EMPTY_BLOCK_SYMBOL);
+                } else {
+                    System.out.print(Cell.WALL_SYMBOL);
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    public void displayWithEscapingPath() {
         for (Cell[] row : GRID) {
             for (Cell cell : row) {
                 System.out.print(cell);
             }
             System.out.println();
+        }
+    }
+
+    public void explore() {
+        // there is a escaping path if the grid is 3x3 or bigger
+        if (GRID.length >= 3) {
+            Deque<Cell> stack = new ArrayDeque<>();
+            dfs(entranceCell, stack);
+        }
+    }
+
+    private void dfs(Cell cell, Deque<Cell> stack) {
+        if (!foundEscapingPath) {
+
+            cell.visit(); // mark as the cell visited
+            stack.offerFirst(cell);
+            if (cell.equals(exitCell)){
+                foundEscapingPath = true;
+                drawEscapingPath(stack);
+            } else {
+                List<Cell> neighbors = cell.getNeighbors();
+
+                // remove all null, visited and wall neighbors
+                neighbors.removeIf(Objects::isNull);
+                neighbors.removeIf(Cell::isVisited);
+                neighbors.removeIf(Cell::isWallBlock);
+
+                neighbors = shuffleList(neighbors);
+                for (Cell neighbor : neighbors) {
+                    if (!foundEscapingPath) {
+                        dfs(neighbor, stack);
+                    }
+                }
+            }
+
+            stack.pollFirst();
+        }
+    }
+
+    private void drawEscapingPath(Deque<Cell> stack) {
+        while (!stack.isEmpty()) {
+            stack.pollFirst().setAsEscapingPathBlock();
         }
     }
 
@@ -110,7 +169,8 @@ public class Maze implements Serializable{
         // choose a random cell in the left side to set as the entrance
         // create a random index from 1 to ROWS - 2
         int randomIndex = (int) (Math.random() * (ROWS - 2) + 1);
-        return GRID[randomIndex][0];
+        entranceCell = GRID[randomIndex][0];
+        return entranceCell;
     }
 
     private List<Cell> shuffleList(List<Cell> list) {

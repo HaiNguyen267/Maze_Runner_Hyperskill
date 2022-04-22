@@ -9,11 +9,13 @@ import java.util.stream.Stream;
 
 public class Cell implements Serializable {
 
-    private static final String WALL_SYMBOL = "\u2588\u2588";
-    private static final String EMPTY_BLOCK_SYMBOL = "  ";
+    public static final String WALL_SYMBOL = "\u2588\u2588";
+    public static final String EMPTY_BLOCK_SYMBOL = "  ";
+    public static final String ESCAPING_PATH_BLOCK_SYMBOL = "//";
 
     private String symbol;
-    private boolean visited;
+    private boolean checked; // used in generate the maze
+    private boolean visited; // used in finding the escaping path
     Cell north;
     Cell east;
     Cell west;
@@ -21,7 +23,11 @@ public class Cell implements Serializable {
 
     public Cell() {
         this.symbol = WALL_SYMBOL;
-        this.visited = false;
+        this.checked = false;
+    }
+
+    public boolean isChecked() {
+        return checked;
     }
 
     public boolean isVisited() {
@@ -31,6 +37,10 @@ public class Cell implements Serializable {
     public boolean isEmptyBlock() {
         return symbol.equals(EMPTY_BLOCK_SYMBOL);
     }
+
+    public boolean isWallBlock() { return symbol.equals(WALL_SYMBOL);}
+
+    public boolean isEscapingPathBlock() { return symbol.equals(ESCAPING_PATH_BLOCK_SYMBOL);}
 
     public boolean isRightBorder() {
         return this.east == null;
@@ -67,13 +77,21 @@ public class Cell implements Serializable {
 
     public void setAsEmptyBlock()  {
         this.symbol = EMPTY_BLOCK_SYMBOL;
-        this.visited = true;
+        this.checked = true;
     }
 
     public void setAsWallBlock() {
         this.symbol = WALL_SYMBOL;
+        this.checked = true;
+    }
 
+    public void setAsEscapingPathBlock() {
+        this.symbol = ESCAPING_PATH_BLOCK_SYMBOL;
+    }
+
+    public void visit() {
         this.visited = true;
+
     }
 
     public void setNorth(Cell cell) {

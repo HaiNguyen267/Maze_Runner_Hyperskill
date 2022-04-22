@@ -1,5 +1,7 @@
 apply plugin: 'hyperskill'
 
+
+
 subprojects {
     apply plugin: 'application'
     apply plugin: 'java'
@@ -30,6 +32,8 @@ subprojects {
     dependencies {
         testImplementation 'com.github.hyperskill:hs-test:release-SNAPSHOT'
     }
+
+
 
     configurations.all {
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
@@ -66,4 +70,10 @@ configure(subprojects.findAll {it.name != 'util'}) {
 
 wrapper {
     gradleVersion = hs.gradle.version
+}
+
+
+
+repositories {
+    mavenCentral()
 }
